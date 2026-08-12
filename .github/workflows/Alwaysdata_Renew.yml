@@ -1,13 +1,8 @@
-name: Alwaysdata 每月随机自动续期
+name: Alwaysdata-baohuo
 on:
   workflow_dispatch: # 支持手动触发
   schedule:
     - cron: '6 2 28 9 *'   # 👈 这个时间每次运行成功后会被脚本自动改写
-
-permissions:
-  contents: write
-  actions: write
-  workflows: write # 赋予修改工作流文件并提交的权限
 
 jobs:
   alwaysdata_renew:
@@ -17,8 +12,7 @@ jobs:
       - name: 拉取仓库代码
         uses: actions/checkout@v4
         with:
-          # 使用 GitHub 内置默认 Token，无需手动新建 REPO_TOKEN Secret
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.REPO_TOKEN }}
 
       - name: 设置 Python 环境
         uses: actions/setup-python@v5
@@ -66,14 +60,12 @@ jobs:
           NEW_CRON="${{ steps.generate_cron.outputs.NEW_CRON }}"
           WORKFLOW_FILE="${GITHUB_WORKSPACE}/.github/workflows/Alwaysdata_Renew.yml"
 
-          # 确认文件存在
           if [ ! -f "$WORKFLOW_FILE" ]; then
             echo "::error::找不到工作流文件: $WORKFLOW_FILE"
             ls -la "${GITHUB_WORKSPACE}/.github/workflows/" || true
             exit 1
           fi
 
-          # 定位 cron 行号并精准替换
           LINE_NUM=$(grep -n "cron: '" "$WORKFLOW_FILE" | head -n1 | cut -d: -f1)
           if [ -z "$LINE_NUM" ]; then
             echo "::error::未在 yml 文件中找到 cron 定义行"
@@ -82,7 +74,6 @@ jobs:
 
           sed -i "${LINE_NUM}c\\    - cron: '$NEW_CRON'   # 👈 这个时间每次运行成功后会被脚本自动改写" "$WORKFLOW_FILE"
 
-          # 检查是否有物理变动
           if git diff --quiet "$WORKFLOW_FILE"; then
             echo "::notice::Cron 时间无物理变化，无需提交"
             exit 0
