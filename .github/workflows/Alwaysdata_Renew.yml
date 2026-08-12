@@ -86,3 +86,12 @@ jobs:
                    -m "新排期表达式: $NEW_CRON"
           git push
           echo "::notice::✅ 下个月的随机定时任务已成功推送到仓库中！"
+
+      - name: 🧹 清理历史工作流记录（只保留最新 1 条）
+        uses: Mattraks/delete-workflow-runs@v2
+        if: always()
+        with:
+          token: ${{ secrets.REPO_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 1
