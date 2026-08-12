@@ -2,7 +2,7 @@ name: Alwaysdata-baohuo
 on:
   workflow_dispatch: # 支持手动触发
   schedule:
-    - cron: '6 2 28 9 *'   # 👈 这个时间每次运行成功后会被脚本自动改写
+    - cron: '23 15 23 9 *'   # 👈 这个时间每次运行成功后会被脚本自动改写
 
 jobs:
   alwaysdata_renew:
